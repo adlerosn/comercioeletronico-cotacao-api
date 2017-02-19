@@ -4,8 +4,15 @@ module.exports = function (app) {
     res.send('OK.');
   });
   app.post('/pedidos/adiciona', function (req, res) {
-    var pagamento = req.body;
-    res.send('OK.')
+    var pedido = req.body;
+
+    var connection = app.persistencia.connectionFactory();
+    var pedidoDao = new app.persistencia.pedidosDao();
+    pedidoDao.salva(pedido, function (erro, resultado) {
+      console.log('pagamentocriado');
+    });
+
+
   });
 
 }
