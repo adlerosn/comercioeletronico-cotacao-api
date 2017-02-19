@@ -7,7 +7,7 @@ module.exports = function (app) {
     var pedido = req.body;
 
     var connection = app.persistencia.connectionFactory();
-    var pedidoDao = new app.persistencia.pedidosDao();
+    var pedidoDao = new app.persistencia.pedidosDao(connection);
     pedidoDao.salva(pedido, function (erro, resultado) {
       console.log('pagamentocriado');
     });
