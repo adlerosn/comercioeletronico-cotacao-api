@@ -9,3 +9,7 @@ PedidoDao.prototype.salva = function (pedido, callback) {
 PedidoDao.prototype.lista = function (callback) {
     this._connection.query('select * from pedidos ', callback);
 }
+
+module.exports = function(){
+    return PedidoDao;
+};
