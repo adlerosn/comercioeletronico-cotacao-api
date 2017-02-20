@@ -31,18 +31,14 @@ module.exports = function (app) {
         console.log(err);
       } else {
         console.log("data " + data.length);
-        if (data.length != 0) {
+        if (data.length == 2) {
           fs.readFile(filePath, 'utf8', function readFileCallback(err, data) {
             if (err) {
               console.log(err);
             } else {
-              obj.push(JSON.parse(data)); //now it an object
-              console.log('obj lido' + obj);
-              obj.push(pedido); //add some data
-              console.log('obj lido + pedido' + obj);
-              json = JSON.stringify(obj); //convert it back to json
-               console.log('obj lido + pedido json' + json);
-              fs.writeFile(filePath, json, 'utf8', function (err) { }); // write it back 
+              var ress = data.replace(']', json + ']');
+              console.log('nova data :' + ress);
+              fs.writeFile(filePath, ress, 'utf8', function (err) { }); // write it back 
             }
           });
         } else {
@@ -50,7 +46,14 @@ module.exports = function (app) {
             if (err) {
               console.log(err);
             } else {
-              fs.writeFile(filePath, json, 'utf8', function (err) { }); // write it back 
+
+              var lasti = data.lastIndexOf(']');
+              var ress = data.substring(0, lasti) + ',' + json + ']';
+
+              //  = data.replace(']', ',' + json + ']');
+              console.log('nova data :' + ress);
+
+              fs.writeFile(filePath, ress, 'utf8', function (err) { }); // write it back 
             }
           });
         }
