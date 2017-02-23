@@ -62,6 +62,38 @@ module.exports = function (app) {
   });
 
 
+
+
+  app.get('/pedidos/id', function (req, res) {
+
+    var path = require('path');
+
+    var filePath = path.join(__dirname, 'pedidos.txt');
+
+    var pedido = req.body;
+    console.log(pedido);
+    var json = JSON.stringify(pedido);
+    var obj = [];
+    console.log(json);
+    fs.readFile(filePath, 'utf8', function readFileCallback(err, data) {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log("data " + data.length);
+        if (data.length == 2) {
+          fs.readFile(filePath, 'utf8', function readFileCallback(err, data) {
+            if (err) {
+              console.log(err);
+            } else {
+              var ress = JSON.parse(data);
+              res.json(data);
+            }
+          });
+        }
+      }
+    });
+  });
+
   app.get('/pedidos/lista/zera', function (req, res) {
 
     var path = require('path');
