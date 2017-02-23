@@ -80,16 +80,16 @@ module.exports = function (app) {
         console.log(err);
       } else {
         console.log("data " + data.length);
-        if (data.length == 2) {
-          fs.readFile(filePath, 'utf8', function readFileCallback(err, data) {
-            if (err) {
-              console.log(err);
-            } else {
-              var ress = JSON.parse(data);
-              res.json(data);
-            }
-          });
-        }
+
+        fs.readFile(filePath, 'utf8', function readFileCallback(err, data) {
+          if (err) {
+            console.log(err);
+          } else {
+            var ress = JSON.parse(data);
+            res.json(data.lenght);
+          }
+        });
+
       }
     });
   });
