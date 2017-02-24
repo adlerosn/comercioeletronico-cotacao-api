@@ -86,7 +86,7 @@ module.exports = function (app) {
             console.log(err);
           } else {
             var ress = JSON.parse(data);
-            res.json(data.lenght);
+            res.json(Object.keys(data).length);
           }
         });
 
