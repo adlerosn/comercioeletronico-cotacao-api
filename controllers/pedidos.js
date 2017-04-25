@@ -1,8 +1,8 @@
 module.exports = function (app) {
     var fs = require('fs');
 
-    app.get('', function (req, res) {
-        res.text('API root; nothing here.');
+    app.get('/', function (req, res) {
+        res.json('API root; nothing here.');
     });
 
     app.get('/pedidos/lista', function (req, res) {
