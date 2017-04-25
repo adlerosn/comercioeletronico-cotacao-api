@@ -1,19 +1,26 @@
+var rootFunc = function (req, res) {
+    res.json({
+        type:'index',
+        message:'API root; nothing here.',
+        data:{
+            'pedido':['GET','POST'],
+            'pedido/{id}':['GET'],
+            'pedido/{id}/cotacoes':['GET'],
+            'cotacao':['GET'],
+            'cotacao/{id}':['GET','POST'],
+            'cotacao/{id}/islatest':['GET'],
+        }
+    });
+}
+
 module.exports = function (app) {
     var fs = require('fs');
 
-    app.get('/', function (req, res) {
-        res.json({
-            type:'error',
-            message:'API root; nothing here.',
-            data:{
-                'pedido':['GET','POST'],
-                'pedido/{id}':['GET'],
-                'cotacao':['GET'],
-                'cotacao/{id}':['GET','POST'],
-                'cotacao/{id}/islatest':['GET'],
-            }
-        });
-    });
+    app.get('/', rootFunc);
+    app.post('/', rootFunc);
+    app.put('/', rootFunc);
+    app.patch('/', rootFunc);
+    app.delete('/', rootFunc);
 
     app.get('/pedidos/lista', function (req, res) {
 
