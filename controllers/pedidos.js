@@ -1,7 +1,7 @@
 module.exports = function (app) {
     var fs = require('fs');
 
-    app.get('/', function (req, res) {
+    app.get('', function (req, res) {
         res.text('API root; nothing here.');
     });
 
