@@ -5,13 +5,13 @@ module.exports = function (app) {
         res.json({
             type:'error',
             message:'API root; nothing here.',
-            data:[
+            data:{
                 'pedido':['GET','POST'],
                 'pedido/{id}':['GET'],
                 'cotacao':['GET'],
                 'cotacao/{id}':['GET','POST'],
                 'cotacao/{id}/islatest':['GET'],
-            ]
+            }
         });
     });
 
