@@ -3,12 +3,44 @@ var rootFunc = function (req, res) {
         type:'index',
         message:'API root; nothing here.',
         data:{
-            'pedido':['GET','POST'],
-            'pedido/{id}':['GET'],
-            'pedido/{id}/cotacoes':['GET'],
-            'cotacao':['GET'],
-            'cotacao/{id}':['GET','POST'],
-            'cotacao/{id}/islatest':['GET'],
+            'pedido':[
+                {
+                    method:'GET',
+                    description:'Retorna a lista de pedidos'
+                },
+                {
+                    method:'POST',
+                    description:'Insere um pedido'
+                }
+            ],
+            'pedido/{pedido_id}':[
+                {
+                    method:'GET',
+                    description:'Retorna um pedido'
+                }
+            ],
+            'pedido/{pedido_id}/cotacao':[
+                {
+                    method:'GET',
+                    description:'Retorna a lista de cotacões para um pedido'
+                },
+                {
+                    method:'POST',
+                    description:'Insere uma proposta para um pedido'
+                }
+            ],
+            'pedido/{pedido_id}/cotacao/{cotacao_id}':[
+                {
+                    method:'GET',
+                    description:'Retorna um cotacão para um pedido'
+                }
+            ],
+            'pedido/{pedido_id}/cotacao/{cotacao_id}/islatest':[
+                {
+                    method:'GET',
+                    description:'Retorna se a cotacão é a mais recente'
+                }
+            ],
         }
     });
 }
@@ -22,64 +54,26 @@ module.exports = function (app) {
     app.patch('/', rootFunc);
     app.delete('/', rootFunc);
 
-    app.get('/pedidos/lista', function (req, res) {
-
-        var path = require('path');
-
-        var filePath = path.join(__dirname, 'pedidos.txt');
-
-        fs.readFile(filePath, { encoding: 'utf-8' }, function (err, data) {
-            if (!err) {
-                res.json(data);
-            } else {
-                console.log(err);
-            }
-        });
+    app.get('/pedido', function (req, res) {
+        res.json(null);
     });
-    app.post('/pedidos/adiciona', function (req, res) {
-
-        var path = require('path');
-
-        var filePath = path.join(__dirname, 'pedidos.txt');
-
-        var pedido = req.body;
-        console.log(pedido);
-        var json = JSON.stringify(pedido);
-        var obj = [];
-        console.log(json);
-        fs.readFile(filePath, 'utf8', function readFileCallback(err, data) {
-            if (err) {
-                console.log(err);
-            } else {
-                console.log("data " + data.length);
-                if (data.length == 2) {
-                    fs.readFile(filePath, 'utf8', function readFileCallback(err, data) {
-                        if (err) {
-                            console.log(err);
-                        } else {
-                            var ress = data.replace(']', json + ']');
-                            console.log('nova data :' + ress);
-                            fs.writeFile(filePath, ress, 'utf8', function (err) { }); // write it back
-                        }
-                    });
-                } else {
-                    fs.readFile(filePath, 'utf8', function readFileCallback(err, data) {
-                        if (err) {
-                            console.log(err);
-                        } else {
-
-                            var lasti = data.lastIndexOf(']');
-                            var ress = data.substring(0, lasti) + ',' + json + ']';
-
-                            //  = data.replace(']', ',' + json + ']');
-                            console.log('nova data :' + ress);
-
-                            fs.writeFile(filePath, ress, 'utf8', function (err) { }); // write it back
-                        }
-                    });
-                }
-            }
-        });
+    app.post('/pedido', function (req, res) {
+        res.json(null);
+    });
+    app.get('/pedido/:pedido_id', function (req, res) {
+        res.json(null);
+    });
+    app.get('/pedido/:pedido_id/cotacao', function (req, res) {
+        res.json(null);
+    });
+    app.post('/pedido/:pedido_id/cotacao', function (req, res) {
+        res.json(null);
+    });
+    app.get('/pedido/:pedido_id/cotacao/:cotacao_id', function (req, res) {
+        res.json(null);
+    });
+    app.get('/pedido/:pedido_id/cotacao/:cotacao_id/islatest', function (req, res) {
+        res.json(null);
     });
 
 }
