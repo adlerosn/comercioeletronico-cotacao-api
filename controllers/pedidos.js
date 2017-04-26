@@ -152,8 +152,8 @@ function ensureNotUndefined(variable,replace){
 }
 
 function _loadDb(){
-    var data = fs.readFileSync('./db.txt',{encoding:'utf8'});
     try{
+        var data = fs.readFileSync('./db.txt',{encoding:'utf8'});
         return JSON.parse(data);
     }catch(e){
         return {};
@@ -175,6 +175,9 @@ function saveDb(data){
 }
 
 function permissiveJsonParse(text,fail){
+    if(typeof(text)==='object'){
+        return text;
+    }
     try{
         return JSON.parse(text);
     }catch(e){
@@ -449,23 +452,20 @@ module.exports = function (app) {
     app.get('/tela/:nome', function (req, res) {
         switch(req.params.nome){
             case 'cotar':
-            fs.readFile('./cotar.html', function(err, data){
-                res.set('content-type','text/html');
-                res.send(data);
-            });
+            res.set('content-type','text/html');
+            res.send(fs.readFileSync('./cotar.html'));
             break;
             case 'ofertar':
-            fs.readFile('./ofertar.html', function(err, data){
-                res.set('content-type','text/html');
-                res.send(data);
-            });
+            res.set('content-type','text/html');
+            res.send(fs.readFileSync('./ofertar.html'));
             break;
             case 'estoque':
-            fs.readFile('./estoque.html', function(err, data){
-                res.set('content-type','text/html');
-                res.send(data);
-            });
+            res.set('content-type','text/html');
+            res.send(fs.readFileSync('./estoque.html'));
             break;
+            case 'jquery':
+            res.set('content-type','application/javascript');
+            res.send(fs.readFileSync('./jquery-3.2.1.min.js'));
             default:
             res.send('');
         }

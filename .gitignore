@@ -9,6 +9,7 @@ npm-debug.log
 *~
 **/*~
 **/**/*~
+db.txt
 
 # Docker
 Dockerfile

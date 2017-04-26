@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>
+        Estoque
+    </title>
+    <meta charset="utf-8">
+    <script src="/tela/jquery"></script>
+</head>
+<body>
+    <div id="tabelaSalvo"></div>
+    <hr>
+    <div>
+        <div>
+            <label>
+                Código
+            </label>
+            <input id="codigo" onkeyup="edit(this.id,this.value)">
+        </div>
+        <div>
+            <label>
+                Descrição
+            </label>
+            <input id="descricao" onkeyup="edit(this.id,this.value)">
+        </div>
+        <div>
+            <label>
+                Nome curto
+            </label>
+            <input id="nome" onkeyup="edit(this.id,this.value)">
+        </div>
+        <div>
+            <label>
+                Quantidade unitária
+            </label>
+            <input id="qtdunt" onkeyup="edit(this.id,this.value)">
+        </div>
+        <div>
+            <label>
+                Quantidade estoque
+            </label>
+            <input id="qtdest" onkeyup="edit(this.id,this.value)">
+        </div>
+        <button onclick="add()">Adicionar</button>
+        <button onclick="clearForm()">Limpar</button>
+    </div>
+    <div id="tabelaItems"></div>
+    <script>
+    if (!String.prototype.trim) { //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim
+        String.prototype.trim = function () {
+            return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+        };
+    }
+
+    if (!Array.prototype.swap) {
+        Array.prototype.swap = function(a,b){
+            //don't attempt to swap if indexes invalid
+            if(Math.min(a,b)<0 || Math.max(a,b)>=this.length)
+            return this;
+            //indexes are valid, then swap
+            var tmp = this[a];
+            this[a] = this[b];
+            this[b] = tmp;
+            return this;
+        }
+    }
+
+    if (!Array.prototype.remove) {
+        Array.prototype.remove = function(a){
+            //don't attempt to swap if index is invalid
+            if(a<0 || a>=this.length)
+            return undefined;
+            //index is valid, then remove
+            return this.splice(a, 1)[0];
+        }
+    }
+
+    if (!Array.prototype.contains) {
+        Array.prototype.contains = function(a){
+            var ret = false
+            this.forEach(function(elem){
+                if(elem===a)
+                ret = true;
+            });
+            return ret;
+        }
+    }
+
+    if (!String.prototype.escapeHtml) { // http://stackoverflow.com/a/6234804
+        String.prototype.escapeHtml = function () {
+            return this
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+        };
+    }
+
+    function ensureArray(variable){
+        if(
+            variable !== null
+            &&
+            typeof(variable) === "object"
+            &&
+            (
+                variable.constructor === Array
+                ||
+                (
+                    variable.prop
+                    &&
+                    variable.prop.constructor === Array
+                )
+            )
+        )
+        return variable;
+        else
+        return new Array();
+    }
+
+    function ensureNotUndefined(variable,replace){
+        if(typeof(variable) === "undefined")
+        return replace;
+        else
+        return variable;
+    }
+    </script>
+    <script>
+    function buildTable(dom, data){
+        v = ''
+        v+= '<style>table{width:100%;} td{border:1px solid black;}</style>'
+        v+= '<table><thead><tr>'
+        v+= '<td>'+('ID'.escapeHtml())+'</td>'
+        v+= '<td>'+('Código'.escapeHtml())+'</td>'
+        v+= '<td>'+('Descrição'.escapeHtml())+'</td>'
+        v+= '<td>'+('Nome curto'.escapeHtml())+'</td>'
+        v+= '<td>'+('Quantidade unitária'.escapeHtml())+'</td>'
+        v+= '<td>'+('Quantidade estoque'.escapeHtml())+'</td>'
+        v+= '</tr></thead>'
+        v+= '<tbody>'
+        for(var item of data){
+            if(item){
+                v+= '<td>'+(String(item.id).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.codigo).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.descricao).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.nome).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.qtdunt).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.qtdest).escapeHtml())+'</td>';
+            }
+        }
+        v+= '</tbody>'
+        v+= '</table>'
+        dom.innerHTML = v;
+    }
+    tempdata = {}
+    function edit(att,val){
+        tempdata[att] = val
+    }
+    function clearForm(){
+        $('input').each((l,e)=>{e.value=''})
+        tempdata = {}
+    }
+    function refresh(){
+        setTimeout('refresh',5000)
+        $.get('/estoque','',(data, textStatus, jqXHR)=>{
+            buildTable($('#tabelaSalvo')[0], data)
+        },'json');
+    }
+    refresh()
+    function add(){
+        $.ajax({
+            contentType: 'application/json',
+            data: JSON.stringify(tempdata),
+            dataType: 'json',
+            success: (data)=>{
+                clearForm();
+                setTimeout(()=>{window.location.reload()},0);
+            },
+            type: 'POST',
+            url: '/estoque'
+        });
+    }
+    function xhrPost(method, url, data, callback){
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                callback(xhttp.responseText);
+            }
+        };
+        xhttp.open(method, url);
+        xhttp.setRequestHeader('Content-Type', 'application/json')
+        xhttp.send(data);
+    }
+    </script>
+</body>
+</html>
