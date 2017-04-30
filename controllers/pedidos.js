@@ -119,7 +119,13 @@ if (!String.prototype.escapeHtml) { // http://stackoverflow.com/a/6234804
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+        .replace(/'/g, "&#039;")
+        .replace(/\(/g, "&#040;")
+        .replace(/\)/g, "&#041;")
+        .replace(/\[/g, "&#091;")
+        .replace(/\]/g, "&#093;")
+        .replace(/{/g, "&#123;")
+        .replace(/}/g, "&#125;");
     };
 }
 
@@ -221,7 +227,7 @@ function getPedidoList(){
 *   codigo    : string : codigo do produto
 *   descricao : string : descricao do produto
 *   nome      : string : nome curto
-*   qtdunt    : string : quantidade unitária [ex: caixa de 5 kg]
+*   qtdunt    : string : quantidade unitaria [ex: caixa de 5 kg]
 *   qtdest    : float  : quantidade em estoque
 * }
 */
@@ -257,7 +263,7 @@ function filterProduto(req){
 *   codigo    : string : codigo do produto
 *   descricao : string : descricao do produto
 *   nome      : string : nome curto
-*   qtdunt    : string : quantidade unitária [ex: caixa de 5 kg]
+*   qtdunt    : string : quantidade unitaria [ex: caixa de 5 kg]
 *   qtdund    : float  : quantidade de unidades
 * }
 */
@@ -291,7 +297,7 @@ function filterPedidoItem(req){
 /*
 * pedido : object{
 *   cliente : string : nome do cliente
-*   data    : int    : timestamp de inserção
+*   data    : int    : timestamp de insercao
 *   itens   : item[] : item do pedido
 * }
 */
@@ -322,9 +328,9 @@ function filterPedido(req){
 *   descricao : string : descricao
 *   marca     : string : marca/modelo
 *   nome      : string : nome curto
-*   qtdunt    : string : quantidade unitária [ex: caixa de 5 kg]
+*   qtdunt    : string : quantidade unitaria [ex: caixa de 5 kg]
 *   qtdund    : float  : quantidade de unidades
-*   valunt    : float  : valor unitário
+*   valunt    : float  : valor unitario
 *   valtt     : float  : valor total do item
 * }
 */
@@ -373,7 +379,7 @@ function filterCotacaoItem(req){
 *   vendedor : string    : Vendedor
 *   telefone : string    : Telefone de contado do vendedor
 *   email    : string    : Email do vendedor
-*   data     : int       : Data da cotação
+*   data     : int       : Data da cotacao
 *   valtt    : float     : Valor total do pedido
 *   fpag1    : string    : Forma de pagamento 1
 *   fpag2    : string    : Forma de pagamento 2
@@ -406,7 +412,7 @@ function filterCotacao(req){
     for(var item of ensureArray(cot_i.itensped)){
         var itemFiltered = filterCotacaoItem(item);
         if(itemFiltered){
-            cot_o.itens.push(itemFiltered)
+            cot_o.itensped.push(itemFiltered)
         }
     }
     if(
@@ -505,11 +511,12 @@ module.exports = function (app) {
         }
     });
     app.post('/busca', function (req, res) {
-        var termo = ensureNotUndefined(permissiveJsonParse(req.body,""),"");
+        var termo = ensureNotUndefined(permissiveJsonParse(req.body,{'termo':''}),{'termo':''}).termo;
         var resultado = new Array();
         var list = getEstoqueList();
         for(var item of list){
-            if(item.indexOf(termo) !== -1){
+            if(item.nome.indexOf(termo) !== -1 || item.codigo.indexOf(termo) !== -1){
+                item.qtdest = undefined;
                 resultado.push(item);
             }
         }
@@ -546,7 +553,7 @@ module.exports = function (app) {
     app.post('/pedido/:pedido_id/cotacao', function (req, res) {
         var novo = filterCotacao(permissiveJsonParse(req.body,{}));
         var pedido = getArrayItem(getPedidoList(), req.params.pedido_id, null);
-        if(pedido){
+        if(pedido && novo){
             var cotacoes = ensureArray(pedido.cotacao);
             var cotacao_id = indexArrayAutoincrement(cotacoes);
             novo.id = cotacao_id;

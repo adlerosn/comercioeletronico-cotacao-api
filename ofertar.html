@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>
+        Ofertar
+    </title>
+    <meta charset="utf-8">
+    <script src="/tela/jquery"></script>
+    <style>table thead td{background-color: #00000022;}</style>
+</head>
+<body>
+    <div id="tabelaPedSalvo"></div>
+    <hr>
+    <div id="tabelaCotacao"></div>
+    <script>
+    tcdom = document.getElementById('tabelaCotacao');
+    pededt = {};
+    cot = {};
+    fields = [
+        {
+            id: 'nome',
+            nm: 'Nome do fornecedor'
+        },
+        {
+            id: 'vendedor',
+            nm: 'Vendedor'
+        },
+        {
+            id: 'telefone',
+            nm: 'Telefone de contado do vendedor'
+        },
+        {
+            id: 'email',
+            nm: 'Email do vendedor'
+        },
+        {
+            id: 'valtt',
+            nm: 'Valor total do pedido'
+        },
+        {
+            id: 'fpag1',
+            nm: 'Forma de pagamento 1'
+        },
+        {
+            id: 'fpag2',
+            nm: 'Forma de pagamento 2'
+        }
+    ]
+    function getItemTable(data){
+        v = ''
+        v+= '<style>table{width:100%;} td{border:1px solid black;}</style>'
+        v+= '<table><thead><tr>'
+        v+= '<td>'+('Código'.escapeHtml())+'</td>'
+        v+= '<td>'+('Descrição'.escapeHtml())+'</td>'
+        v+= '<td>'+('Nome curto'.escapeHtml())+'</td>'
+        v+= '<td>'+('Quantidade unitária'.escapeHtml())+'</td>'
+        v+= '<td>'+('Quantidade de unidades'.escapeHtml())+'</td>'
+        v+= '</tr></thead>'
+        v+= '<tbody>'
+        for(var item of data){
+            if(item){
+                if(
+                    typeof(item.codigo)==='undefined'
+                    ||
+                    typeof(item.descricao)==='undefined'
+                    ||
+                    typeof(item.nome)==='undefined'
+                    ||
+                    typeof(item.qtdunt)==='undefined'
+                    ||
+                    typeof(item.qtdund)==='undefined'
+                    ||
+                    item.codigo.length==0
+                    ||
+                    item.descricao.length==0
+                    ||
+                    item.nome.length==0
+                    ||
+                    item.qtdunt.length==0
+                    ||
+                    item.qtdund.length==0
+                ){
+                    continue;
+                }
+                v+= '<tr>';
+                v+= '<td>'+(String(typeof(item.codigo)==='undefined'?'':item.codigo).escapeHtml())+'</td>';
+                v+= '<td>'+(String(typeof(item.descricao)==='undefined'?'':item.descricao).escapeHtml())+'</td>';
+                v+= '<td>'+(String(typeof(item.nome)==='undefined'?'':item.nome).escapeHtml())+'</td>';
+                v+= '<td>'+(String(typeof(item.qtdunt)==='undefined'?'':item.qtdunt).escapeHtml())+'</td>';
+                v+= '<td>'+(String(typeof(item.qtdund)==='undefined'?'':item.qtdund).escapeHtml())+'</td>';
+                v+= '</tr>';
+            }
+        }
+        v+= '</tbody>'
+        v+= '</table>'
+        return v;
+    }
+    function buildSalvoTable(dom, data){
+        v = ''
+        v+= '<style>table{width:100%;} td{border:1px solid black;}</style>'
+        v+= '<table><thead><tr>'
+        v+= '<td>'+('ID'.escapeHtml())+'</td>'
+        v+= '<td>'+('Cliente'.escapeHtml())+'</td>'
+        v+= '<td>'+('Data'.escapeHtml())+'</td>'
+        v+= '<td>'+('Itens'.escapeHtml())+'</td>'
+        v+= '<td>'+('Ofertar'.escapeHtml())+'</td>'
+        v+= '</tr></thead>'
+        v+= '<tbody>'
+        for(var item of data){
+            if(item){
+                v+= '<tr>';
+                v+= '<td>'+(String(item.id).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.cliente).escapeHtml())+'</td>';
+                v+= '<td>'+(String(new Date(item.data*1000)).escapeHtml())+'</td>';
+                v+= '<td>'+getItemTable(item.itens)+'</td>';
+                v+= '<td><button onclick="novaCotacao('+(JSON.stringify(item).escapeHtml())+')">Ofertar</button></td>';
+                v+= '</tr>';
+            }
+        }
+        v+= '</tbody>'
+        v+= '</table>'
+        dom.innerHTML = v;
+    }
+    function buildCotacaoTable(dom, data){
+        v = ''
+        v+= '<style>table{width:100%;} td{border:1px solid black;}</style>'
+        v+= '<table><thead><tr>'
+        v+= '<td>'+('ID'.escapeHtml())+'</td>'
+        v+= '<td>'+('Nome'.escapeHtml())+'</td>'
+        v+= '<td>'+('Data'.escapeHtml())+'</td>'
+        v+= '<td>'+('Itens'.escapeHtml())+'</td>'
+        v+= '</tr></thead>'
+        v+= '<tbody>'
+        for(var item of data){
+            if(item){
+                v+= '<tr>';
+                v+= '<td>'+(String(item.id).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.cliente).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.data).escapeHtml())+'</td>';
+                v+= '<td>'+getItemTable(item.itens)+'</td>';
+                v+= '</tr>';
+            }
+        }
+        v+= '</tbody>'
+        v+= '</table>'
+        dom.innerHTML = v;
+    }
+    function getItemFillTable(data){
+        v = ''
+        v+= '<style>table{width:100%;} td{border:1px solid black;}</style>'
+        v+= '<table><thead><tr>'
+        v+= '<td>'+('Código'.escapeHtml())+'</td>'
+        v+= '<td>'+('Descrição'.escapeHtml())+'</td>'
+        v+= '<td>'+('Nome curto'.escapeHtml())+'</td>'
+        v+= '<td>'+('Quantidade unitária'.escapeHtml())+'</td>'
+        v+= '<td>'+('Quantidade de unidades'.escapeHtml())+'</td>'
+        v+= '<td>'+('Valor unitario'.escapeHtml())+'</td>'
+        v+= '<td>'+('Valor total do item'.escapeHtml())+'</td>'
+        v+= '</tr></thead>'
+        v+= '<tbody>'
+        for(var key in data){
+            var item = data[key]
+            if(item){
+                if(
+                    typeof(item.codigo)==='undefined'
+                    ||
+                    typeof(item.descricao)==='undefined'
+                    ||
+                    typeof(item.nome)==='undefined'
+                    ||
+                    typeof(item.qtdunt)==='undefined'
+                    ||
+                    typeof(item.qtdund)==='undefined'
+                    ||
+                    item.codigo.length==0
+                    ||
+                    item.descricao.length==0
+                    ||
+                    item.nome.length==0
+                    ||
+                    item.qtdunt.length==0
+                    ||
+                    item.qtdund.length==0
+                ){
+                    continue;
+                }
+                v+= '<tr>';
+                v+= '<td>'+(String(typeof(item.codigo)==='undefined'?'':item.codigo).escapeHtml())+'</td>';
+                v+= '<td>'+(String(typeof(item.descricao)==='undefined'?'':item.descricao).escapeHtml())+'</td>';
+                v+= '<td>'+(String(typeof(item.nome)==='undefined'?'':item.nome).escapeHtml())+'</td>';
+                v+= '<td>'+(String(typeof(item.qtdunt)==='undefined'?'':item.qtdunt).escapeHtml())+'</td>';
+                v+= '<td>'+(String(typeof(item.qtdund)==='undefined'?'':item.qtdund).escapeHtml())+'</td>';
+                v+= '<td><input onkeyup="cotaProduto('+key+',\'valunt\',this.value)" placeholder="0"></td>';
+                v+= '<td><input onkeyup="cotaProduto('+key+',\'valtt\',this.value)" placeholder="0"></td>';
+                v+= '</tr>';
+            }
+        }
+        v+= '</tbody>';
+        v+= '</table>';
+        return v
+    }
+    function novaCotacao(pedido){
+        pededt = pedido;
+        var t = '';
+        t+= '<div>'+getItemFillTable(pedido.itens)+'</div>'
+        t+= '<div>'
+        for(var field of fields){
+            t+= '<div>'
+            t+= '<label>'+(field.nm.escapeHtml())+'</label>'
+            t+= ' '
+            t+= '<input id="'+(field.id.escapeHtml())+'" onkeyup="fill(this)">'
+            t+= '</div>'
+        }
+        t+= '<div>'
+        t+= '<label>'+('Validade da proposta'.escapeHtml())+'</label>'
+        t+= ' '
+        t+= '<input id="validade_year" placeholder="ano" onkeyup="filldt(this)" style="max-width: 50px">'
+        t+= '-'
+        t+= '<input id="validade_month" placeholder="mês" onkeyup="filldt(this)" style="max-width: 50px">'
+        t+= '-'
+        t+= '<input id="validade_day" placeholder="dia" onkeyup="filldt(this)" style="max-width: 50px">'
+        t+= ' '
+        t+= '<input id="validade_hour" placeholder="hora" onkeyup="filldt(this)" style="max-width: 50px">'
+        t+= ':'
+        t+= '<input id="validade_minute" placeholder="minuto" onkeyup="filldt(this)" style="max-width: 50px">'
+        t+= '</div>'
+        t+= '</div>'
+        t+= '<button onclick="send()">Enviar</button>'
+        t+= '<div id="sendstatus" style="opacity: 0.35;">'
+        t+= 'Aguardando envio'
+        t+= '</div>'
+        tcdom.innerHTML = t;
+        for(var field of fields){
+            cot[field.id] = ''
+        }
+        cot.validade = parseInt((new Date()).getTime()/1000)
+        setTimeout(()=>{
+            statusdom = document.getElementById('sendstatus')
+        },20)
+        cot.itensped = []
+        Object.assign(cot.itensped, pedido.itens);
+        for(var key in cot.itensped){
+            cot.itensped[key].valunt = '0'
+            cot.itensped[key].valtt = '0'
+        }
+    }
+    function cotaProduto(key, field, value){
+        cot.itensped[key][field] = value
+    }
+    function filldt(input){
+        var field = input.id.split('_')[0]
+        var param = input.id.split('_')[1]
+        var val = parseInt(input.value)
+        if(isNaN(val)){
+            return
+        }
+        var date = new Date(cot[field]*1000);
+        var Y = date.getFullYear()
+        var M = date.getMonth()
+        var D = date.getDate()
+        var h = date.getHours()
+        var m = date.getMinutes()
+        var s = date.getSeconds()
+        switch(param){
+            case 'year':
+            Y = val
+            break;
+            case 'month':
+            M = val
+            break;
+            case 'day':
+            D = val
+            break;
+            case 'hour':
+            h = val
+            break;
+            case 'minute':
+            m = val
+            break;
+            case 'second':
+            s = val
+            break;
+            default:
+            break;
+        }
+        date.setFullYear(Y)
+        date.setMonth(M)
+        date.setDate(D)
+        date.setHours(h)
+        date.setMinutes(m)
+        date.setSeconds(s)
+        cot[field] = parseInt(date.getTime()/1000)
+    }
+    function fill(input){
+        var field = input.id
+        var val = input.value
+        cot[field] = val
+    }
+    function send(){
+        statusdom.innerHTML='Enviando...'.escapeHtml()
+        $.ajax({
+            contentType: 'application/json',
+            data: JSON.stringify(cot),
+            dataType: 'json',
+            success: (data)=>{
+                if(data===false || data===null){
+                    statusdom.innerHTML='Validação falhou...'.escapeHtml()
+                }else{
+                    tcdom.innerHTML=('Inserido no pedido nº '+pededt.id+' como cotação nº '+data).escapeHtml()
+                }
+            },
+            type: 'POST',
+            url: '/pedido/'+pededt.id+'/cotacao'
+        }).fail(function (jqXHR, textStatus, error) {
+            statusdom.innerHTML='Requisição falhou...'.escapeHtml()
+        });
+    }
+    function updatePedidos(){
+        $.ajax({
+            contentType: 'application/json',
+            data: undefined,
+            dataType: 'json',
+            success: (data)=>{
+                buildSalvoTable($('#tabelaPedSalvo')[0],data);
+            },
+            type: 'GET',
+            url: '/pedido'
+        });
+    }
+    updatePedidos()
+    </script>
+    <script>
+    if (!String.prototype.trim) { //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim
+        String.prototype.trim = function () {
+            return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+        };
+    }
+
+    if (!Array.prototype.swap) {
+        Array.prototype.swap = function(a,b){
+            //don't attempt to swap if indexes invalid
+            if(Math.min(a,b)<0 || Math.max(a,b)>=this.length)
+            return this;
+            //indexes are valid, then swap
+            var tmp = this[a];
+            this[a] = this[b];
+            this[b] = tmp;
+            return this;
+        }
+    }
+
+    if (!Array.prototype.remove) {
+        Array.prototype.remove = function(a){
+            //don't attempt to swap if index is invalid
+            if(a<0 || a>=this.length)
+            return undefined;
+            //index is valid, then remove
+            return this.splice(a, 1)[0];
+        }
+    }
+
+    if (!Array.prototype.contains) {
+        Array.prototype.contains = function(a){
+            var ret = false
+            this.forEach(function(elem){
+                if(elem===a)
+                ret = true;
+            });
+            return ret;
+        }
+    }
+
+    if (!String.prototype.escapeHtml) { // http://stackoverflow.com/a/6234804
+        String.prototype.escapeHtml = function () {
+            return this
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;")
+            .replace(/\(/g, "&#040;")
+            .replace(/\)/g, "&#041;")
+            .replace(/\[/g, "&#091;")
+            .replace(/\]/g, "&#093;")
+            .replace(/{/g, "&#123;")
+            .replace(/}/g, "&#125;");
+        };
+    }
+
+    function ensureArray(variable){
+        if(
+            variable !== null
+            &&
+            typeof(variable) === "object"
+            &&
+            (
+                variable.constructor === Array
+                ||
+                (
+                    variable.prop
+                    &&
+                    variable.prop.constructor === Array
+                )
+            )
+        )
+        return variable;
+        else
+        return new Array();
+    }
+
+    function ensureNotUndefined(variable,replace){
+        if(typeof(variable) === "undefined")
+        return replace;
+        else
+        return variable;
+    }
+    </script>
+</body>
+</html>

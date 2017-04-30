@@ -4,20 +4,439 @@
     <title>
         Cotar
     </title>
+    <meta charset="utf-8">
+    <script src="/tela/jquery"></script>
+    <style>table thead td{background-color: #00000022;}</style>
 </head>
 <body>
-    <span id="demo"></span>
+    <div id="tabelaPedSalvo"></div>
+    <hr>
+    <div id="tabelaCotSalvo"></div>
+    <hr>
+    <div class="item">
+        <div>
+            <label>
+                Código do produto
+            </label>
+            <input id="codigo" onkeyup="editItm(this.id,this.value)">
+        </div>
+        <div>
+            <label>
+                Descrição do produto
+            </label>
+            <input id="descricao" onkeyup="editItm(this.id,this.value)">
+        </div>
+        <div>
+            <label>
+                Nome curto
+            </label>
+            <input id="nome" onkeyup="editItm(this.id,this.value)">
+        </div>
+        <div>
+            <label>
+                Quantidade unitária
+            </label>
+            <input id="qtdunt" onkeyup="editItm(this.id,this.value)">
+        </div>
+        <div>
+            <label>
+                Quantidade de unidades
+            </label>
+            <input id="qtdund" onkeyup="editItm(this.id,this.value)">
+        </div>
+        <button onclick="add()">Adicionar</button>
+        <button onclick="clearItem()">Limpar</button>
+    </div>
+    <hr>
+    <div>
+        <div>
+            <label>
+                Cliente
+            </label>
+            <input id="cliente" onkeyup="edit(this.id,this.value)">
+        </div>
+        <div id="tabelaItmSalvo"></div>
+        <button onclick="send()">Enviar</button>
+        <button onclick="clearForm()">Limpar</button>
+    </div>
+    <hr>
+    <div>
+        <div>
+            <label>
+                Busca
+            </label>
+            <input id="busca" onkeyup="busca(this.id,this.value)">
+        </div>
+        <div id="tabelaBusca"></div>
+    </div>
+    <div id="tabelaItems"></div>
     <script>
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            // Typical action to be performed when the document is ready:
-            document.getElementById("demo").innerHTML = xhttp.responseText;
+    function buildBuscaTable(dom, data){
+        v = ''
+        v+= '<style>table{width:100%;} td{border:1px solid black;}</style>'
+        v+= '<table><thead><tr>'
+        v+= '<td>'+('ID'.escapeHtml())+'</td>'
+        v+= '<td>'+('Código'.escapeHtml())+'</td>'
+        v+= '<td>'+('Descrição'.escapeHtml())+'</td>'
+        v+= '<td>'+('Nome curto'.escapeHtml())+'</td>'
+        v+= '<td>'+('Quantidade unitária'.escapeHtml())+'</td>'
+        v+= '<td>Ação</td>'
+        v+= '</tr></thead>'
+        v+= '<tbody>'
+        for(var item of data){
+            if(item){
+                v+= '<tr>';
+                v+= '<td>'+(String(item.id).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.codigo).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.descricao).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.nome).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.qtdunt).escapeHtml())+'</td>';
+                v+= '<td><button onclick="fill('+((JSON.stringify(item)).escapeHtml())+')">Adicionar</td>';
+                v+= '</tr>';
+            }
         }
-    };
-    xhttp.open("POST", "/estoque");
-    xhttp.setRequestHeader('Content-Type', 'application/json')
-    xhttp.send('{"here":"body data"}');
+        v+= '</tbody>'
+        v+= '</table>'
+        dom.innerHTML = v;
+    }
+    function getItemTable(data){
+        v = ''
+        v+= '<style>table{width:100%;} td{border:1px solid black;}</style>'
+        v+= '<table><thead><tr>'
+        v+= '<td>'+('Código'.escapeHtml())+'</td>'
+        v+= '<td>'+('Descrição'.escapeHtml())+'</td>'
+        v+= '<td>'+('Nome curto'.escapeHtml())+'</td>'
+        v+= '<td>'+('Quantidade unitária'.escapeHtml())+'</td>'
+        v+= '<td>'+('Quantidade de unidades'.escapeHtml())+'</td>'
+        v+= '</tr></thead>'
+        v+= '<tbody>'
+        for(var item of data){
+            if(item){
+                if(
+                    typeof(item.codigo)==='undefined'
+                    ||
+                    typeof(item.descricao)==='undefined'
+                    ||
+                    typeof(item.nome)==='undefined'
+                    ||
+                    typeof(item.qtdunt)==='undefined'
+                    ||
+                    typeof(item.qtdund)==='undefined'
+                    ||
+                    item.codigo.length==0
+                    ||
+                    item.descricao.length==0
+                    ||
+                    item.nome.length==0
+                    ||
+                    item.qtdunt.length==0
+                    ||
+                    item.qtdund.length==0
+                ){
+                    continue;
+                }
+                v+= '<tr>';
+                v+= '<td>'+(String(typeof(item.codigo)==='undefined'?'':item.codigo).escapeHtml())+'</td>';
+                v+= '<td>'+(String(typeof(item.descricao)==='undefined'?'':item.descricao).escapeHtml())+'</td>';
+                v+= '<td>'+(String(typeof(item.nome)==='undefined'?'':item.nome).escapeHtml())+'</td>';
+                v+= '<td>'+(String(typeof(item.qtdunt)==='undefined'?'':item.qtdunt).escapeHtml())+'</td>';
+                v+= '<td>'+(String(typeof(item.qtdund)==='undefined'?'':item.qtdund).escapeHtml())+'</td>';
+                v+= '</tr>';
+            }
+        }
+        v+= '</tbody>'
+        v+= '</table>'
+        return v;
+    }
+    function buildItemTable(dom, data){
+        dom.innerHTML = getItemTable(data);
+    }
+    function buildSalvoTable(dom, data){
+        v = ''
+        v+= '<style>table{width:100%;} td{border:1px solid black;}</style>'
+        v+= '<table><thead><tr>'
+        v+= '<td>'+('ID'.escapeHtml())+'</td>'
+        v+= '<td>'+('Cliente'.escapeHtml())+'</td>'
+        v+= '<td>'+('Data'.escapeHtml())+'</td>'
+        v+= '<td>'+('Itens'.escapeHtml())+'</td>'
+        v+= '<td>'+('Cotações'.escapeHtml())+'</td>'
+        v+= '</tr></thead>'
+        v+= '<tbody>'
+        for(var item of data){
+            if(item){
+                item.cotacao = ensureArray(item.cotacao)
+                v+= '<tr>';
+                v+= '<td>'+(String(item.id).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.cliente).escapeHtml())+'</td>';
+                v+= '<td>'+(String(new Date(item.data*1000)).escapeHtml())+'</td>';
+                v+= '<td>'+getItemTable(item.itens)+'</td>';
+                v+= '<td><button onclick="mostraCotacoes('+(JSON.stringify(item.cotacao).escapeHtml())+')">'+item.cotacao.length+'</button></td>';
+                v+= '</tr>';
+            }
+        }
+        v+= '</tbody>'
+        v+= '</table>'
+        dom.innerHTML = v;
+    }
+    function getItemCotTable(data){
+        v = ''
+        v+= '<style>table{width:100%;} td{border:1px solid black;}</style>'
+        v+= '<table><thead><tr>'
+        v+= '<td>'+('Código'.escapeHtml())+'</td>'
+        v+= '<td>'+('Descrição'.escapeHtml())+'</td>'
+        v+= '<td>'+('Nome curto'.escapeHtml())+'</td>'
+        v+= '<td>'+('Quantidade unitária'.escapeHtml())+'</td>'
+        v+= '<td>'+('Quantidade de unidades'.escapeHtml())+'</td>'
+        v+= '<td>'+('Valor unitario'.escapeHtml())+'</td>'
+        v+= '<td>'+('Valor total do item'.escapeHtml())+'</td>'
+        v+= '</tr></thead>'
+        v+= '<tbody>'
+        for(var item of data){
+            if(item){
+                v+= '<tr>';
+                v+= '<td>'+(String(item.codigo).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.descricao).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.nome).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.qtdunt).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.qtdund).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.valunt).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.valtt).escapeHtml())+'</td>';
+                v+= '</tr>';
+            }
+        }
+        v+= '</tbody>'
+        v+= '</table>'
+        return v;
+    }
+    function buildCotacaoTable(dom, data){
+        var v = ''
+        v+= '<style>table{width:100%;} td{border:1px solid black;}</style>'
+        v+= '<table><thead><tr>'
+        v+= '<td>'+('ID'.escapeHtml())+'</td>'
+        v+= '<td>'+('Nome do fornecedor'.escapeHtml())+'</td>'
+        v+= '<td>'+('Vendedor'.escapeHtml())+'</td>'
+        v+= '<td>'+('Telefone de contado do vendedor'.escapeHtml())+'</td>'
+        v+= '<td>'+('Email do vendedor'.escapeHtml())+'</td>'
+        v+= '<td>'+('Data da cotacao'.escapeHtml())+'</td>'
+        v+= '<td>'+('Valor total do pedido'.escapeHtml())+'</td>'
+        v+= '<td>'+('Forma de pagamento 1'.escapeHtml())+'</td>'
+        v+= '<td>'+('Forma de pagamento 2'.escapeHtml())+'</td>'
+        v+= '<td>'+('Validade da proposta'.escapeHtml())+'</td>'
+        v+= '<td>'+('Itens'.escapeHtml())+'</td>'
+        v+= '</tr></thead>'
+        v+= '<tbody>'
+        for(var item of data){
+            if(item){
+                v+= '<tr>';
+                v+= '<td>'+(String(item.id).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.nome).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.vendedor).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.telefone).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.email).escapeHtml())+'</td>';
+                v+= '<td>'+(String(new Date(item.data*1000)).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.valtt).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.fpag1).escapeHtml())+'</td>';
+                v+= '<td>'+(String(item.fpag2).escapeHtml())+'</td>';
+                v+= '<td>'+(String(new Date(item.validade*1000)).escapeHtml())+'</td>';
+                v+= '<td>'+getItemCotTable(item.itensped)+'</td>';
+                v+= '</tr>';
+            }
+        }
+        v+= '</tbody>'
+        v+= '</table>'
+        v+= '<button onclick="mostraCotacoes(null)">Fechar lista de cotações</button>'
+        dom.innerHTML = v;
+    }
+    function mostraCotacoes(data){
+        var dom = document.getElementById('tabelaCotSalvo')
+        if(data==null){
+            dom.innerHTML = ''
+        }else{
+            buildCotacaoTable(dom,data)
+        }
+    }
+    tempdata = {}
+    tempdata2 = {}
+    function edit(att,val){
+        tempdata[att] = val
+    }
+    function editItm(att,val){
+        tempdata2[att] = val
+    }
+    function clearForm(){
+        $('input').each((l,e)=>{e.value='';})
+        tempdata = {}
+        tempdata2 = {}
+        busca('busca', '')
+    }
+    function clearItem(){
+        $('.item input').each((l,e)=>{e.value='';})
+        tempdata2 = {}
+    }
+    function add(){
+        tempdata.itens = ensureArray(tempdata.itens);
+        var cloned = {};
+        Object.assign(cloned, tempdata2);
+        tempdata.itens.push(cloned);
+        for(var key in tempdata2){
+            var inp = document.getElementById(key);
+            if(inp!==null){
+                inp.value = '';
+                tempdata2[key] = '';
+            }else{
+                console.error('Field %s is null',key);
+            }
+        }
+        buildItemTable(document.getElementById('tabelaItmSalvo'), tempdata.itens);
+    }
+    setTimeout(()=>{
+        buildItemTable(document.getElementById('tabelaItmSalvo'), ensureArray(tempdata.itens));
+    }, 50);
+    function fill(data){
+        for(var key in data){
+            if(key!='id'){
+                var inp = document.getElementById(key);
+                inp.value = data[key];
+                tempdata2[key] = data[key];
+            }
+        }
+    }
+    function send(){
+        $.ajax({
+            contentType: 'application/json',
+            data: JSON.stringify(tempdata),
+            dataType: 'json',
+            success: (data)=>{
+                clearForm();
+                setTimeout(()=>{window.location.reload()},0);
+            },
+            type: 'POST',
+            url: '/pedido'
+        });
+    }
+    function busca(campo, termo){
+        $.ajax({
+            contentType: 'application/json',
+            data: JSON.stringify({'termo':termo}),
+            dataType: 'json',
+            success: (data)=>{
+                buildBuscaTable($('#tabelaBusca')[0],data);
+            },
+            type: 'POST',
+            url: '/busca'
+        });
+    }
+    busca('busca', $('#busca')[0].value);
+    function xhrPost(method, url, data, callback){
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                callback(xhttp.responseText);
+            }
+        };
+        xhttp.open(method, url);
+        xhttp.setRequestHeader('Content-Type', 'application/json')
+        xhttp.send(data);
+    }
+    function updatePedidos(){
+        $.ajax({
+            contentType: 'application/json',
+            data: undefined,
+            dataType: 'json',
+            success: (data)=>{
+                buildSalvoTable($('#tabelaPedSalvo')[0],data);
+            },
+            type: 'GET',
+            url: '/pedido'
+        });
+    }
+    updatePedidos()
+    </script>
+    <script>
+    if (!String.prototype.trim) { //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim
+        String.prototype.trim = function () {
+            return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+        };
+    }
+
+    if (!Array.prototype.swap) {
+        Array.prototype.swap = function(a,b){
+            //don't attempt to swap if indexes invalid
+            if(Math.min(a,b)<0 || Math.max(a,b)>=this.length)
+            return this;
+            //indexes are valid, then swap
+            var tmp = this[a];
+            this[a] = this[b];
+            this[b] = tmp;
+            return this;
+        }
+    }
+
+    if (!Array.prototype.remove) {
+        Array.prototype.remove = function(a){
+            //don't attempt to swap if index is invalid
+            if(a<0 || a>=this.length)
+            return undefined;
+            //index is valid, then remove
+            return this.splice(a, 1)[0];
+        }
+    }
+
+    if (!Array.prototype.contains) {
+        Array.prototype.contains = function(a){
+            var ret = false
+            this.forEach(function(elem){
+                if(elem===a)
+                ret = true;
+            });
+            return ret;
+        }
+    }
+
+    if (!String.prototype.escapeHtml) { // http://stackoverflow.com/a/6234804
+        String.prototype.escapeHtml = function () {
+            return this
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;")
+            .replace(/\(/g, "&#040;")
+            .replace(/\)/g, "&#041;")
+            .replace(/\[/g, "&#091;")
+            .replace(/\]/g, "&#093;")
+            .replace(/{/g, "&#123;")
+            .replace(/}/g, "&#125;");
+        };
+    }
+
+    function ensureArray(variable){
+        if(
+            variable !== null
+            &&
+            typeof(variable) === "object"
+            &&
+            (
+                variable.constructor === Array
+                ||
+                (
+                    variable.prop
+                    &&
+                    variable.prop.constructor === Array
+                )
+            )
+        )
+        return variable;
+        else
+        return new Array();
+    }
+
+    function ensureNotUndefined(variable,replace){
+        if(typeof(variable) === "undefined")
+        return replace;
+        else
+        return variable;
+    }
     </script>
 </body>
 </html>
