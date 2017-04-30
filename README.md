@@ -4,6 +4,10 @@ Telas: [https://comercioeletronico-cotacao-api.herokuapp.com/tela](https://comer
 
 Código back-end relevante: [pedidos.js](https://raw.githubusercontent.com/adlerosn/comercioeletronico-cotacao-api/master/controllers/pedidos.js)
 
+---
+
+###Especificação:
+
 O trabalho deve agora melhorara a comunicação entre cliente e fornecedor aproximando esta da realidade.
 
 O objetivo desse trabalho é permitir o suporte a todas as etapas de uma transação de pedido de compra até a confirmação do pedido.
