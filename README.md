@@ -1,3 +1,6 @@
+comercioeletronico-cotacao-api
+==============================
+
 Deploy: [https://comercioeletronico-cotacao-api.herokuapp.com/](https://comercioeletronico-cotacao-api.herokuapp.com/)
 
 Telas: [https://comercioeletronico-cotacao-api.herokuapp.com/tela](https://comercioeletronico-cotacao-api.herokuapp.com/tela)
@@ -6,7 +9,7 @@ Código back-end relevante: [pedidos.js](https://raw.githubusercontent.com/adler
 
 ---
 
-##Especificação:
+#Especificação:
 
 O trabalho deve agora melhorara a comunicação entre cliente e fornecedor aproximando esta da realidade.
 
