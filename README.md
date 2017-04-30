@@ -9,6 +9,26 @@ Código back-end relevante: [pedidos.js](https://raw.githubusercontent.com/adler
 
 ---
 
+## Tecnologias
+
+Um código de [péssima qualidade](http://www.gohorseprocess.com.br/extreme-go-horse-(xgh)) foi escrito usando:
+
+### Back-end
+
+#### API RESTful
+
+* NodeJS
+* Express
+
+### Front-end
+
+* HTML
+* jQuery
+* JavaScript
+* CSS (muito pouco)
+
+---
+
 ### Especificação:
 
 O trabalho deve agora melhorara a comunicação entre cliente e fornecedor aproximando esta da realidade.
