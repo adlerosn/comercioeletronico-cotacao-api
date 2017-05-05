@@ -68,6 +68,12 @@ var rootFunc = function (req, res) {
                     description:'Retorna se a cotacão é a mais recente'
                 }
             ],
+            'pedido/{pedido.id}/cotacao/{cotacao.id}/escolher':[
+                {
+                    method:'POST',
+                    description:'Escolhe uma cotação como a vencedora'
+                }
+            ],
         }
     });
 }
@@ -531,6 +537,7 @@ module.exports = function (app) {
             var list = getPedidoList();
             var pedido_id = indexArrayAutoincrement(list);
             novo.id = pedido_id;
+            novo.cotacaoEscolhida = null;
             list[pedido_id] = novo;
             _db.pedido = list;
             saveDb(_db);
@@ -545,7 +552,12 @@ module.exports = function (app) {
     app.get('/pedido/:pedido_id/cotacao', function (req, res) {
         var pedido = getArrayItem(getPedidoList(), req.params.pedido_id, null);
         if(pedido){
-            res.json(ensureArray(pedido.cotacao));
+            var ldc = new Array();
+            for(var cot of ensureArray(pedido.cotacao)){
+                cot.cotacaoEscolhida = (cot.id === pedido.cotacaoEscolhida);
+                ldc.push(cot);
+            }
+            res.json(ldc);
         }else{
             res.json(null);
         }
@@ -570,6 +582,7 @@ module.exports = function (app) {
         if(pedido){
             var cotacoes = ensureArray(pedido.cotacao);
             var cotacao = getArrayItem(cotacoes, req.params.cotacao_id, null);
+            cotacao.cotacaoEscolhida = (cotacao.id === pedido.cotacaoEscolhida);
             res.json(cotacao);
         }else{
             res.json(null);
@@ -589,6 +602,16 @@ module.exports = function (app) {
         }else{
             res.json(false);
         }
+    });
+    app.post('/pedido/:pedido_id/cotacao/:cotacao_id/escolher', function (req, res) {
+        var pedido = getArrayItem(getPedidoList(), req.params.pedido_id, null);
+        var escolhido = parseInt(req.params.cotacao_id);
+        if(!isNaN(escolhido)){
+            _db.pedido[pedido.id].cotacaoEscolhida = escolhido;
+            saveDb(_db);
+            return res.json(true);
+        }
+        return res.json(false);
     });
 
 }

@@ -6,7 +6,9 @@
     </title>
     <meta charset="utf-8">
     <script src="/tela/jquery"></script>
-    <style>table thead td{background-color: #00000022;}</style>
+    <style>table thead td{background-color: #0000FF22;}</style>
+    <style>table tr.cotPret td{background-color: #FF00000F;}</style>
+    <style>table tr.cotEsc td{background-color: #00FF000F;}</style>
 </head>
 <body>
     <div id="tabelaPedSalvo"></div>
@@ -170,7 +172,7 @@
                 v+= '<td>'+(String(item.cliente).escapeHtml())+'</td>';
                 v+= '<td>'+(String(new Date(item.data*1000)).escapeHtml())+'</td>';
                 v+= '<td>'+getItemTable(item.itens)+'</td>';
-                v+= '<td><button onclick="mostraCotacoes('+(JSON.stringify(item.cotacao).escapeHtml())+')">'+item.cotacao.length+'</button></td>';
+                v+= '<td><button onclick="mostraCotacoes('+(JSON.stringify(item.cotacao).escapeHtml())+','+(JSON.stringify(item).escapeHtml())+')">'+item.cotacao.length+'</button></td>';
                 v+= '</tr>';
             }
         }
@@ -208,13 +210,14 @@
         v+= '</table>'
         return v;
     }
-    function buildCotacaoTable(dom, data){
+    function buildCotacaoTable(dom, data, dataparent){
         var v = ''
         v+= '<style>table{width:100%;} td{border:1px solid black;}</style>'
         v+= '<table><thead><tr>'
         v+= '<td>'+('ID'.escapeHtml())+'</td>'
         v+= '<td>'+('Nome do fornecedor'.escapeHtml())+'</td>'
         v+= '<td>'+('Vendedor'.escapeHtml())+'</td>'
+        v+= '<td>'+('Escolher'.escapeHtml())+'</td>'
         v+= '<td>'+('Telefone de contado do vendedor'.escapeHtml())+'</td>'
         v+= '<td>'+('Email do vendedor'.escapeHtml())+'</td>'
         v+= '<td>'+('Data da cotacao'.escapeHtml())+'</td>'
@@ -227,10 +230,19 @@
         v+= '<tbody>'
         for(var item of data){
             if(item){
-                v+= '<tr>';
+                v+= '<tr class="';
+                if(ensureNotUndefined(dataparent.cotacaoEscolhida,null) !== null){
+                    v+= (item.id===dataparent.cotacaoEscolhida)?'cotEsc':'cotPret';
+                }
+                v+= '">';
                 v+= '<td>'+(String(item.id).escapeHtml())+'</td>';
                 v+= '<td>'+(String(item.nome).escapeHtml())+'</td>';
                 v+= '<td>'+(String(item.vendedor).escapeHtml())+'</td>';
+                if(ensureNotUndefined(dataparent.cotacaoEscolhida,null) === null){
+                    v+= '<td><button onclick="escolherCotacao('+dataparent.id+','+item.id+')">Escolher</button></td>';
+                }else{
+                    v+= '<td>'+((item.id===dataparent.cotacaoEscolhida)?'<span style="color: green;">Escolhida</span>':'<span style="color: red;">Preterida</span>')+'</td>';
+                }
                 v+= '<td>'+(String(item.telefone).escapeHtml())+'</td>';
                 v+= '<td>'+(String(item.email).escapeHtml())+'</td>';
                 v+= '<td>'+(String(new Date(item.data*1000)).escapeHtml())+'</td>';
@@ -244,15 +256,15 @@
         }
         v+= '</tbody>'
         v+= '</table>'
-        v+= '<button onclick="mostraCotacoes(null)">Fechar lista de cotações</button>'
+        v+= '<button onclick="mostraCotacoes(null,null)">Fechar lista de cotações</button>'
         dom.innerHTML = v;
     }
-    function mostraCotacoes(data){
+    function mostraCotacoes(data,dataparent){
         var dom = document.getElementById('tabelaCotSalvo')
         if(data==null){
             dom.innerHTML = ''
         }else{
-            buildCotacaoTable(dom,data)
+            buildCotacaoTable(dom,data,dataparent)
         }
     }
     tempdata = {}
@@ -312,6 +324,21 @@
             },
             type: 'POST',
             url: '/pedido'
+        });
+    }
+    function escolherCotacao(pedido_id, cotacao_id){
+        $.ajax({
+            contentType: 'application/json',
+            data: JSON.stringify({}),
+            dataType: 'json',
+            success: (data)=>{
+                if(data){
+                    clearForm();
+                    setTimeout(()=>{window.location.reload()},0);
+                }
+            },
+            type: 'POST',
+            url: '/pedido/'+pedido_id+'/cotacao/'+cotacao_id+'/escolher'
         });
     }
     function busca(campo, termo){

@@ -6,7 +6,8 @@
     </title>
     <meta charset="utf-8">
     <script src="/tela/jquery"></script>
-    <style>table thead td{background-color: #00000022;}</style>
+    <style>table thead td{background-color: #00FF0022;}</style>
+    <style>table tr.cotado td{background-color: #0000000F;}</style>
 </head>
 <body>
     <div id="tabelaPedSalvo"></div>
@@ -108,12 +109,20 @@
         v+= '<tbody>'
         for(var item of data){
             if(item){
-                v+= '<tr>';
+                v+= '<tr class="';
+                if(getArrayItem(item.cotacao,item.cotacaoEscolhida,null) !== null){
+                    v+= 'cotado';
+                }
+                v+= '">';
                 v+= '<td>'+(String(item.id).escapeHtml())+'</td>';
                 v+= '<td>'+(String(item.cliente).escapeHtml())+'</td>';
                 v+= '<td>'+(String(new Date(item.data*1000)).escapeHtml())+'</td>';
                 v+= '<td>'+getItemTable(item.itens)+'</td>';
-                v+= '<td><button onclick="novaCotacao('+(JSON.stringify(item).escapeHtml())+')">Ofertar</button></td>';
+                if(ensureNotUndefined(item.cotacaoEscolhida,null) === null){
+                    v+= '<td><button onclick="novaCotacao('+(JSON.stringify(item).escapeHtml())+')">Ofertar</button></td>';
+                }else{
+                    v+= '<td>Encerrada, ganhador:<br />'+(getArrayItem(item.cotacao,item.cotacaoEscolhida,{email:"ninguém"}).email.escapeHtml())+'</td>';
+                }
                 v+= '</tr>';
             }
         }
@@ -413,6 +422,14 @@
         return replace;
         else
         return variable;
+    }
+
+    function getArrayItem(array, index, notFound){
+        var index = parseInt(index);
+        if(!isNaN(index) && index>=0){
+            return ensureNotUndefined(ensureArray(array)[index], notFound);
+        }
+        return notFound;
     }
     </script>
 </body>
